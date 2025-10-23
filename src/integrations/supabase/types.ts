@@ -276,53 +276,62 @@ export type Database = {
       risk_factors: {
         Row: {
           auditable_area_id: string
-          c_level_concerns: number
+          c_level_concerns: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk: number | null
+          combined_residual_risk_level:
+            | Database["public"]["Enums"]["risk_level"]
+            | null
           created_at: string | null
-          erm_residual_risk: number
-          financial_impact: number
+          erm_residual_risk: Database["public"]["Enums"]["risk_level"]
+          financial_impact: Database["public"]["Enums"]["risk_level"]
           id: string
           inherent_risk_score: number | null
-          internal_audit_residual_risk: number
-          legal_compliance_impact: number
-          new_process_system: number
-          stakeholder_impact: number
-          strategic_significance: number
-          technological_cyber_impact: number
+          internal_audit_residual_risk: Database["public"]["Enums"]["risk_level"]
+          legal_compliance_impact: Database["public"]["Enums"]["risk_level"]
+          new_process_system: Database["public"]["Enums"]["risk_level"]
+          stakeholder_impact: Database["public"]["Enums"]["risk_level"]
+          strategic_significance: Database["public"]["Enums"]["risk_level"]
+          technological_cyber_impact: Database["public"]["Enums"]["risk_level"]
           updated_at: string | null
         }
         Insert: {
           auditable_area_id: string
-          c_level_concerns?: number
+          c_level_concerns?: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk?: number | null
+          combined_residual_risk_level?:
+            | Database["public"]["Enums"]["risk_level"]
+            | null
           created_at?: string | null
-          erm_residual_risk?: number
-          financial_impact?: number
+          erm_residual_risk?: Database["public"]["Enums"]["risk_level"]
+          financial_impact?: Database["public"]["Enums"]["risk_level"]
           id?: string
           inherent_risk_score?: number | null
-          internal_audit_residual_risk?: number
-          legal_compliance_impact?: number
-          new_process_system?: number
-          stakeholder_impact?: number
-          strategic_significance?: number
-          technological_cyber_impact?: number
+          internal_audit_residual_risk?: Database["public"]["Enums"]["risk_level"]
+          legal_compliance_impact?: Database["public"]["Enums"]["risk_level"]
+          new_process_system?: Database["public"]["Enums"]["risk_level"]
+          stakeholder_impact?: Database["public"]["Enums"]["risk_level"]
+          strategic_significance?: Database["public"]["Enums"]["risk_level"]
+          technological_cyber_impact?: Database["public"]["Enums"]["risk_level"]
           updated_at?: string | null
         }
         Update: {
           auditable_area_id?: string
-          c_level_concerns?: number
+          c_level_concerns?: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk?: number | null
+          combined_residual_risk_level?:
+            | Database["public"]["Enums"]["risk_level"]
+            | null
           created_at?: string | null
-          erm_residual_risk?: number
-          financial_impact?: number
+          erm_residual_risk?: Database["public"]["Enums"]["risk_level"]
+          financial_impact?: Database["public"]["Enums"]["risk_level"]
           id?: string
           inherent_risk_score?: number | null
-          internal_audit_residual_risk?: number
-          legal_compliance_impact?: number
-          new_process_system?: number
-          stakeholder_impact?: number
-          strategic_significance?: number
-          technological_cyber_impact?: number
+          internal_audit_residual_risk?: Database["public"]["Enums"]["risk_level"]
+          legal_compliance_impact?: Database["public"]["Enums"]["risk_level"]
+          new_process_system?: Database["public"]["Enums"]["risk_level"]
+          stakeholder_impact?: Database["public"]["Enums"]["risk_level"]
+          strategic_significance?: Database["public"]["Enums"]["risk_level"]
+          technological_cyber_impact?: Database["public"]["Enums"]["risk_level"]
           updated_at?: string | null
         }
         Relationships: [
@@ -422,6 +431,7 @@ export type Database = {
         | "Medium findings"
         | "High findings"
       provider_type: "InternalAudit" | "ThirdParty"
+      risk_level: "Low" | "Medium" | "High"
       weight_category: "RiskFactor" | "AssuranceCoverage" | "ResidualRisk"
     }
     CompositeTypes: {
@@ -561,6 +571,7 @@ export const Constants = {
         "High findings",
       ],
       provider_type: ["InternalAudit", "ThirdParty"],
+      risk_level: ["Low", "Medium", "High"],
       weight_category: ["RiskFactor", "AssuranceCoverage", "ResidualRisk"],
     },
   },
