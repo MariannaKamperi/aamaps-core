@@ -25,6 +25,12 @@ const TestRiskLogic = () => {
         <CardContent className="space-y-4">
           <Button onClick={handleRunTests}>Run Tests</Button>
           
+          {!results && (
+            <p className="text-muted-foreground italic" data-testid="testResultsText">
+              Test results will appear here…
+            </p>
+          )}
+          
           {results && (
             <div className="mt-6 space-y-4">
               <div className="p-4 border rounded-lg">
