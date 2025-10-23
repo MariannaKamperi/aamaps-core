@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AssuranceCoverage from "./pages/AssuranceCoverage";
+import TestRiskLogic from "./pages/TestRiskLogic";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AssuranceCoverage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/test-risk-logic"
+              element={
+                <ProtectedRoute>
+                  <TestRiskLogic />
                 </ProtectedRoute>
               }
             />

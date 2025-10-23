@@ -112,17 +112,17 @@ export function calculateResidualRisk(
 }
 // ✅ TEST FUNCTION to manually verify risk logic inside Lovable
 export function runRiskLogicTests() {
-  const testFactors = {
-    financial_impact: "High",
-    legal_compliance_impact: "Medium",
-    strategic_significance: "High",
-    technological_cyber_impact: "Medium",
-    new_process_system: "Low",
-    stakeholder_impact: "High",
-    c_level_concerns: "High",
+  const testFactors: RiskFactors = {
+    financial_impact: "High" as RiskLevel,
+    legal_compliance_impact: "Medium" as RiskLevel,
+    strategic_significance: "High" as RiskLevel,
+    technological_cyber_impact: "Medium" as RiskLevel,
+    new_process_system: "Low" as RiskLevel,
+    stakeholder_impact: "High" as RiskLevel,
+    c_level_concerns: "High" as RiskLevel,
   };
 
-  const testWeights = [
+  const testWeights: RiskWeight[] = [
     { factor_name: "financial_impact", weight: 0.15 },
     { factor_name: "legal_compliance_impact", weight: 0.15 },
     { factor_name: "strategic_significance", weight: 0.2 },
@@ -136,9 +136,9 @@ export function runRiskLogicTests() {
     { factor_name: "ERM_ResidualWeight", weight: 0.2 },
   ];
 
-  const testCoverages = [
-    { provider_type: "InternalAudit", coverage_level: "Comprehensive" },
-    { provider_type: "ThirdParty", coverage_level: "Moderate" },
+  const testCoverages: AssuranceCoverage[] = [
+    { provider_type: "InternalAudit", coverage_level: "Comprehensive" as CoverageLevel },
+    { provider_type: "ThirdParty", coverage_level: "Moderate" as CoverageLevel },
   ];
 
   const inherent = calculateInherentRisk(testFactors, testWeights);
