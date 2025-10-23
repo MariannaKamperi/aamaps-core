@@ -26,6 +26,7 @@ export type Database = {
           provider_type: Database["public"]["Enums"]["provider_type"]
           updated_at: string | null
           weight: number | null
+          weight_ref: string | null
         }
         Insert: {
           assurance_score?: number | null
@@ -38,6 +39,7 @@ export type Database = {
           provider_type?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
           weight?: number | null
+          weight_ref?: string | null
         }
         Update: {
           assurance_score?: number | null
@@ -50,6 +52,7 @@ export type Database = {
           provider_type?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
           weight?: number | null
+          weight_ref?: string | null
         }
         Relationships: [
           {
@@ -57,6 +60,20 @@ export type Database = {
             columns: ["auditable_area_id"]
             isOneToOne: false
             referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_assurance_coverage_auditable_area"
+            columns: ["auditable_area_id"]
+            isOneToOne: false
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_assurance_coverage_weight_ref"
+            columns: ["weight_ref"]
+            isOneToOne: false
+            referencedRelation: "risk_weights"
             referencedColumns: ["id"]
           },
         ]
@@ -157,6 +174,13 @@ export type Database = {
             referencedRelation: "entities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_auditable_areas_entity"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       entities: {
@@ -184,6 +208,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "entities_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_entities_parent"
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "entities"
@@ -226,6 +257,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_priority_results_auditable_area"
+            columns: ["auditable_area_id"]
+            isOneToOne: false
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "priority_results_auditable_area_id_fkey"
             columns: ["auditable_area_id"]
@@ -288,6 +326,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_risk_factors_auditable_area"
+            columns: ["auditable_area_id"]
+            isOneToOne: true
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "risk_factors_auditable_area_id_fkey"
             columns: ["auditable_area_id"]
