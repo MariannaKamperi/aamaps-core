@@ -377,7 +377,7 @@ export type Database = {
         | "Medium findings"
         | "High findings"
       provider_type: "InternalAudit" | "ThirdParty"
-      weight_category: "RiskFactor" | "AssuranceCoverage"
+      weight_category: "RiskFactor" | "AssuranceCoverage" | "ResidualRisk"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -516,7 +516,7 @@ export const Constants = {
         "High findings",
       ],
       provider_type: ["InternalAudit", "ThirdParty"],
-      weight_category: ["RiskFactor", "AssuranceCoverage"],
+      weight_category: ["RiskFactor", "AssuranceCoverage", "ResidualRisk"],
     },
   },
 } as const
