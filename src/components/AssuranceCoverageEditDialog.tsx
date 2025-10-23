@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { calculateAssuranceCoverage, CoverageLevel, RiskWeight } from '@/utils/riskCalculations';
+import { CoverageLevel } from '@/utils/riskCalculations';
 
 interface AssuranceCoverageEditDialogProps {
   open: boolean;
@@ -22,7 +22,6 @@ interface CoverageData {
 
 export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, onSuccess }: AssuranceCoverageEditDialogProps) => {
   const [loading, setLoading] = useState(false);
-  const [weights, setWeights] = useState<RiskWeight[]>([]);
   const [formData, setFormData] = useState<CoverageData>({
     auditable_area_id: '',
     provider_type: 'InternalAudit',
@@ -52,15 +51,6 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
           coverage_level: coverage.coverage_level,
         });
       }
-
-      // Fetch weights for assurance coverage
-      const { data: weightsData, error: wError } = await supabase
-        .from('risk_weights')
-        .select('*')
-        .eq('category', 'AssuranceCoverage');
-
-      if (wError) throw wError;
-      setWeights(weightsData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load assurance coverage data');
@@ -81,43 +71,18 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
     try {
       setLoading(true);
 
-      // Fetch all coverages for this auditable area to recalculate total
-      const { data: allCoverages, error: fetchError } = await supabase
-        .from('assurance_coverage')
-        .select('*')
-        .eq('auditable_area_id', data.auditable_area_id);
-
-      if (fetchError) throw fetchError;
-
-      // Update current coverage in the list
-      const updatedCoverages = allCoverages.map(c => 
-        c.id === coverageId 
-          ? { ...c, coverage_level: data.coverage_level, provider_type: data.provider_type }
-          : c
-      );
-
-      // Calculate assurance score
-      const assuranceScore = calculateAssuranceCoverage(
-        updatedCoverages.map(c => ({
-          coverage_level: c.coverage_level,
-          provider_type: c.provider_type,
-        })),
-        weights
-      );
-
-      // Update database
+      // Update database - triggers will handle assurance score calculations automatically
       const { error } = await supabase
         .from('assurance_coverage')
         .update({
           coverage_level: data.coverage_level,
           provider_type: data.provider_type,
-          assurance_score: assuranceScore,
         })
         .eq('id', coverageId);
 
       if (error) throw error;
 
-      toast.success('✅ Assurance recalculated automatically.');
+      toast.success('✅ Residual risks recalculated automatically.');
     } catch (error) {
       console.error('Error updating coverage:', error);
       toast.error('Failed to update assurance coverage');

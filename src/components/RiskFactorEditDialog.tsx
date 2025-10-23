@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { calculateInherentRisk, calculateResidualRisk, RiskLevel, RiskWeight } from '@/utils/riskCalculations';
+import { RiskLevel } from '@/utils/riskCalculations';
 
 interface RiskFactorEditDialogProps {
   open: boolean;
@@ -28,7 +28,6 @@ interface RiskFactorData {
 
 export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSuccess }: RiskFactorEditDialogProps) => {
   const [loading, setLoading] = useState(false);
-  const [weights, setWeights] = useState<RiskWeight[]>([]);
   const [formData, setFormData] = useState<RiskFactorData>({
     financial_impact: 'Medium',
     legal_compliance_impact: 'Medium',
@@ -70,14 +69,6 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           erm_residual_risk: riskFactor.erm_residual_risk,
         });
       }
-
-      // Fetch weights
-      const { data: weightsData, error: wError } = await supabase
-        .from('risk_weights')
-        .select('*');
-
-      if (wError) throw wError;
-      setWeights(weightsData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load risk factor data');
@@ -96,9 +87,10 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
     try {
       setLoading(true);
 
-      // Calculate inherent risk
-      const inherentRiskScore = calculateInherentRisk(
-        {
+      // Update database - triggers will handle all calculations automatically
+      const { error } = await supabase
+        .from('risk_factors')
+        .update({
           financial_impact: data.financial_impact,
           legal_compliance_impact: data.legal_compliance_impact,
           strategic_significance: data.strategic_significance,
@@ -106,31 +98,29 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           new_process_system: data.new_process_system,
           stakeholder_impact: data.stakeholder_impact,
           c_level_concerns: data.c_level_concerns,
-        },
-        weights
-      );
-
-      // Calculate residual risk
-      const residualRisk = calculateResidualRisk(
-        data.internal_audit_residual_risk,
-        data.erm_residual_risk,
-        weights
-      );
-
-      // Update database
-      const { error } = await supabase
-        .from('risk_factors')
-        .update({
-          ...data,
-          inherent_risk_score: inherentRiskScore,
-          combined_residual_risk: residualRisk.score,
-          combined_residual_risk_level: residualRisk.level,
         })
         .eq('id', riskFactorId);
 
       if (error) throw error;
 
-      toast.success('✅ Risk recalculated automatically.');
+      // Fetch updated values to show calculated residual risks
+      const { data: updated, error: fetchError } = await supabase
+        .from('risk_factors')
+        .select('*')
+        .eq('id', riskFactorId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      
+      if (updated) {
+        setFormData({
+          ...data,
+          internal_audit_residual_risk: updated.internal_audit_residual_risk,
+          erm_residual_risk: updated.erm_residual_risk,
+        });
+      }
+
+      toast.success('✅ Residual risks recalculated automatically.');
     } catch (error) {
       console.error('Error updating risk factor:', error);
       toast.error('Failed to update risk factor');
@@ -284,40 +274,28 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Internal Audit Residual Risk</Label>
-              <Select
-                value={formData.internal_audit_residual_risk}
-                onValueChange={(value) => handleFieldChange('internal_audit_residual_risk', value as RiskLevel)}
-                disabled={loading}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {riskLevels.map(level => (
-                    <SelectItem key={level} value={level}>{level}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label>ERM Residual Risk</Label>
-              <Select
-                value={formData.erm_residual_risk}
-                onValueChange={(value) => handleFieldChange('erm_residual_risk', value as RiskLevel)}
-                disabled={loading}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {riskLevels.map(level => (
-                    <SelectItem key={level} value={level}>{level}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-semibold mb-3">Calculated Residual Risks</h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Residual risks are system-calculated based on assurance coverage
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Internal Audit Residual Risk</Label>
+                <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                  {formData.internal_audit_residual_risk}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>ERM Residual Risk</Label>
+                <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                  {formData.erm_residual_risk}
+                </div>
+              </div>
             </div>
           </div>
 
