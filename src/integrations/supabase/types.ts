@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       assurance_coverage: {
         Row: {
+          assurance_score: number | null
           auditable_area_id: string
           comments: string | null
           coverage_level: Database["public"]["Enums"]["coverage_level_type"]
@@ -24,18 +25,22 @@ export type Database = {
           last_assurance_date: string | null
           provider_type: Database["public"]["Enums"]["provider_type"]
           updated_at: string | null
+          weight: number | null
         }
         Insert: {
+          assurance_score?: number | null
           auditable_area_id: string
           comments?: string | null
           coverage_level: Database["public"]["Enums"]["coverage_level_type"]
           created_at?: string | null
           id?: string
           last_assurance_date?: string | null
-          provider_type: Database["public"]["Enums"]["provider_type"]
+          provider_type?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
+          weight?: number | null
         }
         Update: {
+          assurance_score?: number | null
           auditable_area_id?: string
           comments?: string | null
           coverage_level?: Database["public"]["Enums"]["coverage_level_type"]
@@ -44,6 +49,7 @@ export type Database = {
           last_assurance_date?: string | null
           provider_type?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
+          weight?: number | null
         }
         Relationships: [
           {
@@ -373,12 +379,7 @@ export type Database = {
         | "No findings"
         | "Medium findings"
         | "High findings"
-      provider_type:
-        | "InternalAudit"
-        | "InfoSec"
-        | "Compliance"
-        | "RiskMgmt"
-        | "ExternalAudit"
+      provider_type: "InternalAudit" | "ThirdParty"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -516,13 +517,7 @@ export const Constants = {
         "Medium findings",
         "High findings",
       ],
-      provider_type: [
-        "InternalAudit",
-        "InfoSec",
-        "Compliance",
-        "RiskMgmt",
-        "ExternalAudit",
-      ],
+      provider_type: ["InternalAudit", "ThirdParty"],
     },
   },
 } as const
