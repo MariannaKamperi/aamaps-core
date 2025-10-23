@@ -419,6 +419,10 @@ export type Database = {
         Returns: boolean
       }
       is_authenticated: { Args: never; Returns: boolean }
+      risk_level_to_score: {
+        Args: { level: Database["public"]["Enums"]["risk_level"] }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "auditor" | "viewer"
