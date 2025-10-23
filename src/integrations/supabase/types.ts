@@ -14,16 +14,371 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assurance_coverage: {
+        Row: {
+          auditable_area_id: string
+          comments: string | null
+          coverage_level: Database["public"]["Enums"]["coverage_level_type"]
+          created_at: string | null
+          id: string
+          last_assurance_date: string | null
+          provider_type: Database["public"]["Enums"]["provider_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          auditable_area_id: string
+          comments?: string | null
+          coverage_level: Database["public"]["Enums"]["coverage_level_type"]
+          created_at?: string | null
+          id?: string
+          last_assurance_date?: string | null
+          provider_type: Database["public"]["Enums"]["provider_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          auditable_area_id?: string
+          comments?: string | null
+          coverage_level?: Database["public"]["Enums"]["coverage_level_type"]
+          created_at?: string | null
+          id?: string
+          last_assurance_date?: string | null
+          provider_type?: Database["public"]["Enums"]["provider_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assurance_coverage_auditable_area_id_fkey"
+            columns: ["auditable_area_id"]
+            isOneToOne: false
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_trail: {
+        Row: {
+          after_value: string | null
+          before_value: string | null
+          change_type: Database["public"]["Enums"]["change_type"]
+          entity_id: string
+          entity_type: string
+          id: string
+          justification: string | null
+          timestamp: string | null
+          user_name: string
+        }
+        Insert: {
+          after_value?: string | null
+          before_value?: string | null
+          change_type: Database["public"]["Enums"]["change_type"]
+          entity_id: string
+          entity_type: string
+          id?: string
+          justification?: string | null
+          timestamp?: string | null
+          user_name: string
+        }
+        Update: {
+          after_value?: string | null
+          before_value?: string | null
+          change_type?: Database["public"]["Enums"]["change_type"]
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          justification?: string | null
+          timestamp?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
+      auditable_areas: {
+        Row: {
+          business_unit: string
+          category: Database["public"]["Enums"]["category_type"]
+          comments: string | null
+          created_at: string | null
+          entity_id: string
+          id: string
+          last_audit_date: string | null
+          last_audit_result:
+            | Database["public"]["Enums"]["last_audit_result_type"]
+            | null
+          name: string
+          regulation: string | null
+          regulatory_requirement: boolean | null
+          responsible_c_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_unit: string
+          category: Database["public"]["Enums"]["category_type"]
+          comments?: string | null
+          created_at?: string | null
+          entity_id: string
+          id?: string
+          last_audit_date?: string | null
+          last_audit_result?:
+            | Database["public"]["Enums"]["last_audit_result_type"]
+            | null
+          name: string
+          regulation?: string | null
+          regulatory_requirement?: boolean | null
+          responsible_c_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_unit?: string
+          category?: Database["public"]["Enums"]["category_type"]
+          comments?: string | null
+          created_at?: string | null
+          entity_id?: string
+          id?: string
+          last_audit_date?: string | null
+          last_audit_result?:
+            | Database["public"]["Enums"]["last_audit_result_type"]
+            | null
+          name?: string
+          regulation?: string | null
+          regulatory_requirement?: boolean | null
+          responsible_c_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditable_areas_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entities: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entities_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      priority_results: {
+        Row: {
+          auditable_area_id: string
+          created_at: string | null
+          id: string
+          justification: string | null
+          overridden: boolean | null
+          priority_level: number
+          proposed_audit_year: number
+          timestamp: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auditable_area_id: string
+          created_at?: string | null
+          id?: string
+          justification?: string | null
+          overridden?: boolean | null
+          priority_level: number
+          proposed_audit_year: number
+          timestamp?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auditable_area_id?: string
+          created_at?: string | null
+          id?: string
+          justification?: string | null
+          overridden?: boolean | null
+          priority_level?: number
+          proposed_audit_year?: number
+          timestamp?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priority_results_auditable_area_id_fkey"
+            columns: ["auditable_area_id"]
+            isOneToOne: false
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risk_factors: {
+        Row: {
+          auditable_area_id: string
+          c_level_concerns: number
+          combined_residual_risk: number | null
+          created_at: string | null
+          erm_residual_risk: number
+          financial_impact: number
+          id: string
+          inherent_risk_score: number | null
+          internal_audit_residual_risk: number
+          legal_compliance_impact: number
+          new_process_system: number
+          stakeholder_impact: number
+          strategic_significance: number
+          technological_cyber_impact: number
+          updated_at: string | null
+        }
+        Insert: {
+          auditable_area_id: string
+          c_level_concerns?: number
+          combined_residual_risk?: number | null
+          created_at?: string | null
+          erm_residual_risk?: number
+          financial_impact?: number
+          id?: string
+          inherent_risk_score?: number | null
+          internal_audit_residual_risk?: number
+          legal_compliance_impact?: number
+          new_process_system?: number
+          stakeholder_impact?: number
+          strategic_significance?: number
+          technological_cyber_impact?: number
+          updated_at?: string | null
+        }
+        Update: {
+          auditable_area_id?: string
+          c_level_concerns?: number
+          combined_residual_risk?: number | null
+          created_at?: string | null
+          erm_residual_risk?: number
+          financial_impact?: number
+          id?: string
+          inherent_risk_score?: number | null
+          internal_audit_residual_risk?: number
+          legal_compliance_impact?: number
+          new_process_system?: number
+          stakeholder_impact?: number
+          strategic_significance?: number
+          technological_cyber_impact?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_factors_auditable_area_id_fkey"
+            columns: ["auditable_area_id"]
+            isOneToOne: true
+            referencedRelation: "auditable_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risk_weights: {
+        Row: {
+          created_at: string | null
+          factor_name: string
+          id: string
+          last_updated_by: string | null
+          threshold_high: number
+          threshold_medium: number
+          updated_at: string | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string | null
+          factor_name: string
+          id?: string
+          last_updated_by?: string | null
+          threshold_high: number
+          threshold_medium: number
+          updated_at?: string | null
+          weight: number
+        }
+        Update: {
+          created_at?: string | null
+          factor_name?: string
+          id?: string
+          last_updated_by?: string | null
+          threshold_high?: number
+          threshold_medium?: number
+          updated_at?: string | null
+          weight?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_inherent_risk_score: {
+        Args: { risk_factor_id: string }
+        Returns: number
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_authenticated: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "auditor" | "viewer"
+      category_type: "Operational" | "Financial" | "IT" | "Compliance" | "HR"
+      change_type: "Create" | "Update" | "Delete"
+      coverage_level_type: "Comprehensive" | "Moderate" | "Limited"
+      last_audit_result_type:
+        | "None"
+        | "No findings"
+        | "Medium findings"
+        | "High findings"
+      provider_type:
+        | "InternalAudit"
+        | "InfoSec"
+        | "Compliance"
+        | "RiskMgmt"
+        | "ExternalAudit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +505,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "auditor", "viewer"],
+      category_type: ["Operational", "Financial", "IT", "Compliance", "HR"],
+      change_type: ["Create", "Update", "Delete"],
+      coverage_level_type: ["Comprehensive", "Moderate", "Limited"],
+      last_audit_result_type: [
+        "None",
+        "No findings",
+        "Medium findings",
+        "High findings",
+      ],
+      provider_type: [
+        "InternalAudit",
+        "InfoSec",
+        "Compliance",
+        "RiskMgmt",
+        "ExternalAudit",
+      ],
+    },
   },
 } as const
