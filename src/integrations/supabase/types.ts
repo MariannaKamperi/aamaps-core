@@ -299,32 +299,29 @@ export type Database = {
       }
       risk_weights: {
         Row: {
+          category: Database["public"]["Enums"]["weight_category"]
           created_at: string | null
+          description: string | null
           factor_name: string
           id: string
-          last_updated_by: string | null
-          threshold_high: number
-          threshold_medium: number
           updated_at: string | null
           weight: number
         }
         Insert: {
+          category: Database["public"]["Enums"]["weight_category"]
           created_at?: string | null
+          description?: string | null
           factor_name: string
           id?: string
-          last_updated_by?: string | null
-          threshold_high: number
-          threshold_medium: number
           updated_at?: string | null
           weight: number
         }
         Update: {
+          category?: Database["public"]["Enums"]["weight_category"]
           created_at?: string | null
+          description?: string | null
           factor_name?: string
           id?: string
-          last_updated_by?: string | null
-          threshold_high?: number
-          threshold_medium?: number
           updated_at?: string | null
           weight?: number
         }
@@ -380,6 +377,7 @@ export type Database = {
         | "Medium findings"
         | "High findings"
       provider_type: "InternalAudit" | "ThirdParty"
+      weight_category: "RiskFactor" | "AssuranceCoverage"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -518,6 +516,7 @@ export const Constants = {
         "High findings",
       ],
       provider_type: ["InternalAudit", "ThirdParty"],
+      weight_category: ["RiskFactor", "AssuranceCoverage"],
     },
   },
 } as const
