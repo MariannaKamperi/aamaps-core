@@ -117,7 +117,7 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
 
       if (error) throw error;
 
-      toast.success('✅ Risk and assurance recalculated automatically.');
+      toast.success('✅ Assurance recalculated automatically.');
     } catch (error) {
       console.error('Error updating coverage:', error);
       toast.error('Failed to update assurance coverage');

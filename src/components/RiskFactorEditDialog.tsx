@@ -130,7 +130,7 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
 
       if (error) throw error;
 
-      toast.success('✅ Risk and assurance recalculated automatically.');
+      toast.success('✅ Risk recalculated automatically.');
     } catch (error) {
       console.error('Error updating risk factor:', error);
       toast.error('Failed to update risk factor');
