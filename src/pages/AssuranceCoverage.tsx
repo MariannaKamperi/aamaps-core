@@ -46,7 +46,7 @@ const AssuranceCoverage = () => {
         .from('assurance_coverage')
         .select(`
           *,
-          auditable_areas (
+          auditable_areas!auditable_area_id (
             name,
             business_unit
           )
