@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Edit } from 'lucide-react';
+import { AlertTriangle, Edit, Sprout } from 'lucide-react';
 import { toast } from 'sonner';
 import { RiskFactorEditDialog } from '@/components/RiskFactorEditDialog';
 
@@ -57,6 +57,28 @@ const RiskFactors = () => {
     }
   };
 
+  const handleSeedTestData = async () => {
+    try {
+      toast.loading('Creating test data...');
+      
+      const { data, error } = await supabase.functions.invoke('seed-test-data', {
+        method: 'POST'
+      });
+
+      if (error) throw error;
+
+      toast.dismiss();
+      toast.success('✅ Test data created successfully');
+      
+      // Refresh the risk factors list
+      fetchRiskFactors();
+    } catch (error) {
+      toast.dismiss();
+      console.error('Error seeding test data:', error);
+      toast.error('Failed to create test data');
+    }
+  };
+
   const getRiskLevelColor = (level: string) => {
     switch (level?.toLowerCase()) {
       case 'high':
@@ -83,6 +105,10 @@ const RiskFactors = () => {
               View and manage risk factors across auditable areas
             </p>
           </div>
+          <Button onClick={handleSeedTestData} variant="outline">
+            <Sprout className="h-4 w-4" />
+            Seed Test Data
+          </Button>
         </div>
 
         <Card>
