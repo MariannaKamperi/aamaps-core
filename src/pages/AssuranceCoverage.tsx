@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Shield } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Shield, Edit } from 'lucide-react';
 import { toast } from 'sonner';
+import { AssuranceCoverageEditDialog } from '@/components/AssuranceCoverageEditDialog';
 
 type ProviderType = 'InternalAudit' | 'ThirdParty' | 'all';
 type CoverageLevel = 'Limited' | 'Moderate' | 'Comprehensive';
@@ -31,6 +33,7 @@ const AssuranceCoverage = () => {
   const [filteredData, setFilteredData] = useState<AssuranceCoverageItem[]>([]);
   const [providerFilter, setProviderFilter] = useState<ProviderType>('all');
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCoverageData();
@@ -152,6 +155,7 @@ const AssuranceCoverage = () => {
                       <TableHead>Assurance Score</TableHead>
                       <TableHead>Last Assurance Date</TableHead>
                       <TableHead>Comments</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -180,6 +184,15 @@ const AssuranceCoverage = () => {
                         <TableCell className="max-w-xs truncate">
                           {item.comments || '-'}
                         </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingId(item.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -189,6 +202,15 @@ const AssuranceCoverage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {editingId && (
+        <AssuranceCoverageEditDialog
+          open={!!editingId}
+          onOpenChange={(open) => !open && setEditingId(null)}
+          coverageId={editingId}
+          onSuccess={fetchCoverageData}
+        />
+      )}
     </Layout>
   );
 };

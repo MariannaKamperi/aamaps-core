@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AssuranceCoverage from "./pages/AssuranceCoverage";
+import RiskFactors from "./pages/RiskFactors";
 import TestRiskLogic from "./pages/TestRiskLogic";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AssuranceCoverage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/risk-factors"
+              element={
+                <ProtectedRoute>
+                  <RiskFactors />
                 </ProtectedRoute>
               }
             />
