@@ -39,7 +39,7 @@ const RiskFactors = () => {
         .from('risk_factors')
         .select(`
           *,
-          auditable_areas!auditable_area_id (
+          auditable_areas!fk_risk_factors_auditable_area (
             name,
             business_unit
           )
