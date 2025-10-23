@@ -63,44 +63,60 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2. Insert entity
-    const { data: entity, error: entityError } = await supabase
-      .from('entities')
-      .insert({ name: 'Test Entity' })
-      .select()
-      .single();
-
-    if (entityError) {
-      console.error('Error inserting entity:', entityError);
-      throw entityError;
-    }
-    console.log('Inserted entity:', entity.id);
-
-    // 3. Insert auditable_area
-    const { data: auditableArea, error: areaError } = await supabase
+    // 2. Check if auditable_area exists, create entity if needed
+    let auditableAreaId: string;
+    
+    const { data: existingArea } = await supabase
       .from('auditable_areas')
-      .insert({
-        name: 'Online Casino Operations',
-        business_unit: 'Online',
-        category: 'Operational',
-        regulatory_requirement: false,
-        comments: 'Test area for logic validation.',
-        entity_id: entity.id
-      })
-      .select()
-      .single();
+      .select('id')
+      .eq('name', 'Online Casino Operations')
+      .maybeSingle();
 
-    if (areaError) {
-      console.error('Error inserting auditable area:', areaError);
-      throw areaError;
+    if (existingArea) {
+      auditableAreaId = existingArea.id;
+      console.log('Using existing auditable area:', auditableAreaId);
+    } else {
+      // Create entity first
+      const { data: entity, error: entityError } = await supabase
+        .from('entities')
+        .insert({ name: 'Test Entity' })
+        .select()
+        .single();
+
+      if (entityError) {
+        console.error('Error inserting entity:', entityError);
+        throw entityError;
+      }
+      console.log('Inserted entity:', entity.id);
+
+      // Insert auditable_area
+      const { data: auditableArea, error: areaError } = await supabase
+        .from('auditable_areas')
+        .insert({
+          name: 'Online Casino Operations',
+          business_unit: 'Online',
+          category: 'Operational',
+          regulatory_requirement: false,
+          comments: 'Test area for logic validation.',
+          entity_id: entity.id
+        })
+        .select()
+        .single();
+
+      if (areaError) {
+        console.error('Error inserting auditable area:', areaError);
+        throw areaError;
+      }
+      
+      auditableAreaId = auditableArea.id;
+      console.log('Inserted auditable area:', auditableAreaId);
     }
-    console.log('Inserted auditable area:', auditableArea.id);
 
     // 4. Insert risk_factor
     const { data: riskFactor, error: riskError } = await supabase
       .from('risk_factors')
       .insert({
-        auditable_area_id: auditableArea.id,
+        auditable_area_id: auditableAreaId,
         financial_impact: 'High',
         legal_compliance_impact: 'Medium',
         strategic_significance: 'High',
@@ -123,12 +139,12 @@ Deno.serve(async (req) => {
     // 5. Insert assurance_coverage records
     const coverageRecords = [
       {
-        auditable_area_id: auditableArea.id,
+        auditable_area_id: auditableAreaId,
         provider_type: 'InternalAudit',
         coverage_level: 'Comprehensive'
       },
       {
-        auditable_area_id: auditableArea.id,
+        auditable_area_id: auditableAreaId,
         provider_type: 'ThirdParty',
         coverage_level: 'Moderate'
       }
@@ -149,8 +165,7 @@ Deno.serve(async (req) => {
         success: true, 
         message: 'Test data created successfully',
         data: {
-          entity_id: entity.id,
-          auditable_area_id: auditableArea.id,
+          auditable_area_id: auditableAreaId,
           risk_factor_id: riskFactor.id
         }
       }),
