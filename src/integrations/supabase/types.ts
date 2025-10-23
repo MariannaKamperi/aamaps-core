@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       assurance_coverage: {
         Row: {
+          assurance_by_internal_audit_score: number | null
+          assurance_by_third_party_score: number | null
           assurance_score: number | null
           auditable_area_id: string
           comments: string | null
@@ -29,6 +31,8 @@ export type Database = {
           weight_ref: string | null
         }
         Insert: {
+          assurance_by_internal_audit_score?: number | null
+          assurance_by_third_party_score?: number | null
           assurance_score?: number | null
           auditable_area_id: string
           comments?: string | null
@@ -42,6 +46,8 @@ export type Database = {
           weight_ref?: string | null
         }
         Update: {
+          assurance_by_internal_audit_score?: number | null
+          assurance_by_third_party_score?: number | null
           assurance_score?: number | null
           auditable_area_id?: string
           comments?: string | null
@@ -407,9 +413,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_assurance_score: {
+        Args: { coverage: Database["public"]["Enums"]["coverage_level_type"] }
+        Returns: number
+      }
       calculate_inherent_risk_score: {
         Args: { risk_factor_id: string }
         Returns: number
+      }
+      calculate_residual_risks: {
+        Args: { risk_factor_id: string }
+        Returns: {
+          erm_residual: Database["public"]["Enums"]["risk_level"]
+          internal_audit_residual: Database["public"]["Enums"]["risk_level"]
+        }[]
       }
       has_role: {
         Args: {
@@ -419,6 +436,10 @@ export type Database = {
         Returns: boolean
       }
       is_authenticated: { Args: never; Returns: boolean }
+      numeric_to_risk_level: {
+        Args: { score: number }
+        Returns: Database["public"]["Enums"]["risk_level"]
+      }
       risk_level_to_score: {
         Args: { level: Database["public"]["Enums"]["risk_level"] }
         Returns: number
