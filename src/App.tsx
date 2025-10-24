@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AssuranceCoverage from "./pages/AssuranceCoverage";
 import RiskFactors from "./pages/RiskFactors";
+import RiskScoring from "./pages/RiskScoring";
 import PriorityResults from "./pages/PriorityResults";
 import TestRiskLogic from "./pages/TestRiskLogic";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <RiskFactors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/risk-scoring/:id"
+              element={
+                <ProtectedRoute>
+                  <RiskScoring />
                 </ProtectedRoute>
               }
             />

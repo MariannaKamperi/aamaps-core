@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Activity, AlertTriangle, Shield, FileText } from 'lucide-react';
+import { Activity, AlertTriangle, Shield, FileText, Calculator } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalAreas: 0,
     highRiskCount: 0,
     assuranceCoverage: 0,
     pendingAudits: 0,
   });
+  const [recentAreas, setRecentAreas] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -42,12 +47,29 @@ const Dashboard = () => {
       .select('*', { count: 'exact', head: true })
       .or(`last_audit_date.is.null,last_audit_date.lt.${oneYearAgo.toISOString()}`);
 
+    // Fetch recent auditable areas
+    const { data: areas } = await supabase
+      .from('auditable_areas')
+      .select(`
+        id,
+        name,
+        business_unit,
+        category,
+        risk_factors!fk_risk_factors_auditable_area (
+          combined_residual_risk_level
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
     setStats({
       totalAreas: totalAreas || 0,
       highRiskCount: highRiskCount || 0,
       assuranceCoverage: assuranceCoverage || 0,
       pendingAudits: pendingAudits || 0,
     });
+
+    setRecentAreas(areas || []);
   };
 
   const mockRiskHeatmap = [
@@ -135,6 +157,54 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Recent Areas Quick Access */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Access to Risk Scoring</CardTitle>
+            <CardDescription>Select an auditable area to view and edit its complete risk assessment</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentAreas.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No auditable areas found</p>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Auditable Area</TableHead>
+                      <TableHead>Business Unit</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Risk Level</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentAreas.map((area) => (
+                      <TableRow key={area.id}>
+                        <TableCell className="font-medium">{area.name}</TableCell>
+                        <TableCell>{area.business_unit}</TableCell>
+                        <TableCell>{area.category}</TableCell>
+                        <TableCell>
+                          {area.risk_factors?.[0]?.combined_residual_risk_level || 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(`/risk-scoring/${area.id}`)}
+                          >
+                            <Calculator className="h-4 w-4 mr-2" />
+                            Open Risk Scoring
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Charts */}
         <div className="grid gap-4 md:grid-cols-2">
