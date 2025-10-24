@@ -106,8 +106,7 @@ const RiskFactors = () => {
             </p>
           </div>
           <Button onClick={handleSeedTestData} variant="outline">
-            <Sprout className="h-4 w-4" />
-            Seed Test Data
+            🌱 Seed Test Data
           </Button>
         </div>
 
