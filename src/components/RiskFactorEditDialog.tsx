@@ -27,7 +27,10 @@ interface RiskFactorData {
   assurance_haircut?: number;
   combined_residual_risk?: number;
   combined_residual_risk_level?: RiskLevel;
+  auditable_area_id?: string;
 }
+
+type CoverageLevel = 'Comprehensive' | 'Moderate' | 'Limited';
 
 export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSuccess }: RiskFactorEditDialogProps) => {
   const [loading, setLoading] = useState(false);
@@ -42,6 +45,10 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
     internal_audit_residual_risk: 'Medium',
     erm_residual_risk: 'Medium',
   });
+  const [iaCoverage, setIaCoverage] = useState<CoverageLevel>('Limited');
+  const [tpCoverage, setTpCoverage] = useState<CoverageLevel>('Limited');
+  const [iaCoverageId, setIaCoverageId] = useState<string | null>(null);
+  const [tpCoverageId, setTpCoverageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -73,7 +80,29 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           assurance_haircut: riskFactor.assurance_haircut,
           combined_residual_risk: riskFactor.combined_residual_risk,
           combined_residual_risk_level: riskFactor.combined_residual_risk_level,
+          auditable_area_id: riskFactor.auditable_area_id,
         });
+
+        // Fetch assurance coverage data for this auditable area
+        const { data: coverages, error: covError } = await supabase
+          .from('assurance_coverage')
+          .select('*')
+          .eq('auditable_area_id', riskFactor.auditable_area_id);
+
+        if (covError) throw covError;
+        if (coverages) {
+          const iaCov = coverages.find(c => c.provider_type === 'InternalAudit');
+          const tpCov = coverages.find(c => c.provider_type === 'ThirdParty');
+          
+          if (iaCov) {
+            setIaCoverage(iaCov.coverage_level as CoverageLevel);
+            setIaCoverageId(iaCov.id);
+          }
+          if (tpCov) {
+            setTpCoverage(tpCov.coverage_level as CoverageLevel);
+            setTpCoverageId(tpCov.id);
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -145,12 +174,83 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
     }
   };
 
+  const handleCoverageChange = async (providerType: 'InternalAudit' | 'ThirdParty', newLevel: CoverageLevel) => {
+    try {
+      setLoading(true);
+      
+      const coverageId = providerType === 'InternalAudit' ? iaCoverageId : tpCoverageId;
+      
+      if (coverageId) {
+        // Update existing record
+        const { error } = await supabase
+          .from('assurance_coverage')
+          .update({ coverage_level: newLevel })
+          .eq('id', coverageId);
+        
+        if (error) throw error;
+      } else {
+        // Create new record if it doesn't exist
+        const { data, error } = await supabase
+          .from('assurance_coverage')
+          .insert([{
+            auditable_area_id: formData.auditable_area_id!,
+            provider_type: providerType,
+            coverage_level: newLevel,
+          }])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        
+        if (providerType === 'InternalAudit') {
+          setIaCoverageId(data.id);
+        } else {
+          setTpCoverageId(data.id);
+        }
+      }
+      
+      // Update local state
+      if (providerType === 'InternalAudit') {
+        setIaCoverage(newLevel);
+      } else {
+        setTpCoverage(newLevel);
+      }
+      
+      // Fetch updated risk factors (triggers will have recalculated)
+      const { data: updated, error: fetchError } = await supabase
+        .from('risk_factors')
+        .select('*')
+        .eq('id', riskFactorId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      if (updated) {
+        setFormData(prev => ({
+          ...prev,
+          assurance_haircut: updated.assurance_haircut,
+          internal_audit_residual_risk: updated.internal_audit_residual_risk,
+          combined_residual_risk: updated.combined_residual_risk,
+          combined_residual_risk_level: updated.combined_residual_risk_level,
+        }));
+      }
+      
+      toast.success('✅ Assurance and residual risks recalculated automatically.');
+    } catch (error) {
+      console.error('Error updating coverage:', error);
+      toast.error('Failed to update assurance coverage');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = () => {
     onSuccess?.();
     onOpenChange(false);
   };
 
   const riskLevels: RiskLevel[] = ['Low', 'Medium', 'High'];
+  const coverageLevels: CoverageLevel[] = ['Comprehensive', 'Moderate', 'Limited'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -294,23 +394,64 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
 
           <div className="pt-4 border-t">
             <h3 className="text-sm font-semibold mb-3">Assurance Coverage</h3>
-            <div className="space-y-2 mb-4">
-              <Label>Assurance Coverage Haircut</Label>
-              <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
-                {formData.assurance_haircut != null ? formData.assurance_haircut.toFixed(3) : 'N/A'}
+            <p className="text-xs text-muted-foreground mb-4">
+              Update coverage levels to automatically recalculate residual risks
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Assurance by Internal Audit</Label>
+                <Select
+                  value={iaCoverage}
+                  onValueChange={(value) => handleCoverageChange('InternalAudit', value as CoverageLevel)}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coverageLevels.map(level => (
+                      <SelectItem key={level} value={level}>{level}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Calculated based on Internal Audit and Third Party assurance levels
-              </p>
+
+              <div className="space-y-2">
+                <Label>Assurance by Third Party</Label>
+                <Select
+                  value={tpCoverage}
+                  onValueChange={(value) => handleCoverageChange('ThirdParty', value as CoverageLevel)}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coverageLevels.map(level => (
+                      <SelectItem key={level} value={level}>{level}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
           <div className="pt-4 border-t">
-            <h3 className="text-sm font-semibold mb-3">Residual Risks</h3>
+            <h3 className="text-sm font-semibold mb-3">Calculated Residual Risks</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Calculated automatically based on inherent risk and assurance coverage
+              Read-only values calculated automatically based on inherent risk and assurance coverage
             </p>
             
+            <div className="space-y-2 mb-4">
+              <Label>Assurance Haircut (%)</Label>
+              <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                {formData.assurance_haircut != null ? (formData.assurance_haircut * 100).toFixed(1) + '%' : 'N/A'}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Internal Audit Residual Risk</Label>
