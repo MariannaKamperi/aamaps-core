@@ -4,11 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
-  FileText, 
   AlertTriangle, 
   Shield, 
   ListChecks, 
-  Calculator,
   Settings, 
   History,
   LogOut,
@@ -24,8 +22,6 @@ interface LayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'auditor', 'viewer'] },
-  { name: 'Auditable Areas', href: '/auditable-areas', icon: FileText, roles: ['admin', 'auditor', 'viewer'] },
-  { name: 'Risk Scoring', href: '/risk-scoring', icon: Calculator, roles: ['admin', 'auditor', 'viewer'], disabled: true },
   { name: 'Risk Factors', href: '/risk-factors', icon: AlertTriangle, roles: ['admin', 'auditor', 'viewer'] },
   { name: 'Assurance Coverage', href: '/assurance-coverage', icon: Shield, roles: ['admin', 'auditor', 'viewer'] },
   { name: 'Priority Results', href: '/priority-results', icon: ListChecks, roles: ['admin', 'auditor', 'viewer'] },
@@ -43,22 +39,7 @@ const NavLinks = ({ userRole }: { userRole: string | null }) => {
   return (
     <nav className="space-y-1">
       {filteredNav.map((item) => {
-        const isActive = location.pathname === item.href || 
-          (item.href === '/risk-scoring' && location.pathname.startsWith('/risk-scoring/'));
-        
-        if (item.disabled) {
-          return (
-            <div
-              key={item.name}
-              className="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-muted-foreground cursor-not-allowed opacity-60"
-              title="Select an area from Dashboard to access Risk Scoring"
-            >
-              <item.icon className="mr-3 h-5 w-5" />
-              {item.name}
-            </div>
-          );
-        }
-        
+        const isActive = location.pathname === item.href;
         return (
           <Link
             key={item.name}
