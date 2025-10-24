@@ -297,7 +297,7 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
             <div className="space-y-2 mb-4">
               <Label>Assurance Coverage Haircut</Label>
               <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
-                {formData.assurance_haircut !== undefined ? formData.assurance_haircut.toFixed(3) : 'N/A'}
+                {formData.assurance_haircut != null ? formData.assurance_haircut.toFixed(3) : 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground">
                 Calculated based on Internal Audit and Third Party assurance levels
@@ -340,7 +340,7 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
               <div className="space-y-2">
                 <Label>Combined Residual Risk</Label>
                 <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
-                  {formData.combined_residual_risk !== undefined ? formData.combined_residual_risk.toFixed(2) : 'N/A'}
+                  {formData.combined_residual_risk != null ? formData.combined_residual_risk.toFixed(2) : 'N/A'}
                 </div>
               </div>
 
