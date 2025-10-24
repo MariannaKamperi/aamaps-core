@@ -430,10 +430,6 @@ export type Database = {
         Args: { coverage: Database["public"]["Enums"]["coverage_level_type"] }
         Returns: number
       }
-      calculate_inherent_risk_score: {
-        Args: { risk_factor_id: string }
-        Returns: number
-      }
       calculate_priority_level: {
         Args: { p_auditable_area_id: string }
         Returns: number
