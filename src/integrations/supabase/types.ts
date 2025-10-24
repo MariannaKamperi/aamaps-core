@@ -281,6 +281,7 @@ export type Database = {
       }
       risk_factors: {
         Row: {
+          assurance_haircut: number | null
           auditable_area_id: string
           c_level_concerns: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk: number | null
@@ -301,6 +302,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          assurance_haircut?: number | null
           auditable_area_id: string
           c_level_concerns?: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk?: number | null
@@ -321,6 +323,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          assurance_haircut?: number | null
           auditable_area_id?: string
           c_level_concerns?: Database["public"]["Enums"]["risk_level"]
           combined_residual_risk?: number | null
@@ -413,6 +416,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_assurance_haircut: {
+        Args: { area_id: string }
+        Returns: number
+      }
       calculate_assurance_score: {
         Args: { coverage: Database["public"]["Enums"]["coverage_level_type"] }
         Returns: number
@@ -427,6 +434,14 @@ export type Database = {
           erm_residual: Database["public"]["Enums"]["risk_level"]
           internal_audit_residual: Database["public"]["Enums"]["risk_level"]
         }[]
+      }
+      coverage_level_to_score: {
+        Args: { level: Database["public"]["Enums"]["coverage_level_type"] }
+        Returns: number
+      }
+      erm_risk_level_to_score: {
+        Args: { level: Database["public"]["Enums"]["risk_level"] }
+        Returns: number
       }
       has_role: {
         Args: {

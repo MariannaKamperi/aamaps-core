@@ -34,8 +34,8 @@ Deno.serve(async (req) => {
       { factor_name: 'new_process_system', category: 'RiskFactor', weight: 0.10, description: 'New process/system weight' },
       { factor_name: 'stakeholder_impact', category: 'RiskFactor', weight: 0.10, description: 'Stakeholder impact weight' },
       { factor_name: 'c_level_concerns', category: 'RiskFactor', weight: 0.15, description: 'C-level concerns weight' },
-      { factor_name: 'InternalAudit_Assurance', category: 'AssuranceCoverage', weight: 0.50, description: 'Internal audit assurance weight' },
-      { factor_name: 'ThirdParty_Assurance', category: 'AssuranceCoverage', weight: 0.50, description: 'Third party assurance weight' },
+      { factor_name: 'Assurance_InternalAudit', category: 'AssuranceCoverage', weight: 0.50, description: 'Internal audit assurance weight' },
+      { factor_name: 'Assurance_ThirdParty', category: 'AssuranceCoverage', weight: 0.50, description: 'Third party assurance weight' },
       { factor_name: 'InternalAudit_ResidualWeight', category: 'ResidualRisk', weight: 0.80, description: 'Internal audit residual weight' },
       { factor_name: 'ERM_ResidualWeight', category: 'ResidualRisk', weight: 0.20, description: 'ERM residual weight' }
     ];

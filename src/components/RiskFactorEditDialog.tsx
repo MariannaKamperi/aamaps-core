@@ -24,6 +24,9 @@ interface RiskFactorData {
   c_level_concerns: RiskLevel;
   internal_audit_residual_risk: RiskLevel;
   erm_residual_risk: RiskLevel;
+  assurance_haircut?: number;
+  combined_residual_risk?: number;
+  combined_residual_risk_level?: RiskLevel;
 }
 
 export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSuccess }: RiskFactorEditDialogProps) => {
@@ -67,6 +70,9 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           c_level_concerns: riskFactor.c_level_concerns,
           internal_audit_residual_risk: riskFactor.internal_audit_residual_risk,
           erm_residual_risk: riskFactor.erm_residual_risk,
+          assurance_haircut: riskFactor.assurance_haircut,
+          combined_residual_risk: riskFactor.combined_residual_risk,
+          combined_residual_risk_level: riskFactor.combined_residual_risk_level,
         });
       }
     } catch (error) {
@@ -80,30 +86,37 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
     setFormData(newFormData);
 
     // Automatically recalculate and update
-    await recalculateAndUpdate(newFormData);
+    await recalculateAndUpdate(newFormData, field === 'erm_residual_risk');
   };
 
-  const recalculateAndUpdate = async (data: RiskFactorData) => {
+  const recalculateAndUpdate = async (data: RiskFactorData, includeErmRisk: boolean = false) => {
     try {
       setLoading(true);
 
       // Update database - triggers will handle all calculations automatically
+      const updateData: any = {
+        financial_impact: data.financial_impact,
+        legal_compliance_impact: data.legal_compliance_impact,
+        strategic_significance: data.strategic_significance,
+        technological_cyber_impact: data.technological_cyber_impact,
+        new_process_system: data.new_process_system,
+        stakeholder_impact: data.stakeholder_impact,
+        c_level_concerns: data.c_level_concerns,
+      };
+
+      // Include ERM residual risk if it was changed
+      if (includeErmRisk) {
+        updateData.erm_residual_risk = data.erm_residual_risk;
+      }
+
       const { error } = await supabase
         .from('risk_factors')
-        .update({
-          financial_impact: data.financial_impact,
-          legal_compliance_impact: data.legal_compliance_impact,
-          strategic_significance: data.strategic_significance,
-          technological_cyber_impact: data.technological_cyber_impact,
-          new_process_system: data.new_process_system,
-          stakeholder_impact: data.stakeholder_impact,
-          c_level_concerns: data.c_level_concerns,
-        })
+        .update(updateData)
         .eq('id', riskFactorId);
 
       if (error) throw error;
 
-      // Fetch updated values to show calculated residual risks
+      // Fetch updated values to show all calculated fields
       const { data: updated, error: fetchError } = await supabase
         .from('risk_factors')
         .select('*')
@@ -117,10 +130,13 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           ...data,
           internal_audit_residual_risk: updated.internal_audit_residual_risk,
           erm_residual_risk: updated.erm_residual_risk,
+          assurance_haircut: updated.assurance_haircut,
+          combined_residual_risk: updated.combined_residual_risk,
+          combined_residual_risk_level: updated.combined_residual_risk_level,
         });
       }
 
-      toast.success('✅ Residual risks recalculated automatically.');
+      toast.success('✅ Assurance and residual risks recalculated successfully.');
     } catch (error) {
       console.error('Error updating risk factor:', error);
       toast.error('Failed to update risk factor');
@@ -277,9 +293,22 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
           </div>
 
           <div className="pt-4 border-t">
-            <h3 className="text-sm font-semibold mb-3">Calculated Residual Risks</h3>
+            <h3 className="text-sm font-semibold mb-3">Assurance Coverage</h3>
+            <div className="space-y-2 mb-4">
+              <Label>Assurance Coverage Haircut</Label>
+              <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                {formData.assurance_haircut !== undefined ? formData.assurance_haircut.toFixed(3) : 'N/A'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Calculated based on Internal Audit and Third Party assurance levels
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-semibold mb-3">Residual Risks</h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Residual risks are system-calculated based on assurance coverage
+              Calculated automatically based on inherent risk and assurance coverage
             </p>
             
             <div className="grid grid-cols-2 gap-4">
@@ -291,9 +320,34 @@ export const RiskFactorEditDialog = ({ open, onOpenChange, riskFactorId, onSucce
               </div>
 
               <div className="space-y-2">
-                <Label>ERM Residual Risk</Label>
+                <Label>ERM Residual Risk (Manual)</Label>
+                <Select
+                  value={formData.erm_residual_risk}
+                  onValueChange={(value) => handleFieldChange('erm_residual_risk', value as RiskLevel)}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {riskLevels.map(level => (
+                      <SelectItem key={level} value={level}>{level}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Combined Residual Risk</Label>
                 <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
-                  {formData.erm_residual_risk}
+                  {formData.combined_residual_risk !== undefined ? formData.combined_residual_risk.toFixed(2) : 'N/A'}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Combined Residual Risk Level</Label>
+                <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">
+                  {formData.combined_residual_risk_level || 'N/A'}
                 </div>
               </div>
             </div>
