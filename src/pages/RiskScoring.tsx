@@ -89,13 +89,36 @@ const RiskScoring = () => {
       setAuditableArea(area);
 
       // Fetch risk factors
-      const { data: riskData, error: riskError } = await supabase
+      let { data: riskData, error: riskError } = await supabase
         .from('risk_factors')
         .select('*')
         .eq('auditable_area_id', id)
         .maybeSingle();
 
       if (riskError) throw riskError;
+      
+      // If no risk factor record exists, create a default one
+      if (!riskData) {
+        const { data: newRiskData, error: createError } = await supabase
+          .from('risk_factors')
+          .insert({
+            auditable_area_id: id,
+            financial_impact: 'Medium',
+            legal_compliance_impact: 'Medium',
+            strategic_significance: 'Medium',
+            technological_cyber_impact: 'Medium',
+            new_process_system: 'Medium',
+            stakeholder_impact: 'Medium',
+            c_level_concerns: 'Medium',
+            erm_residual_risk: 'Medium',
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        riskData = newRiskData;
+        toast.success('Created default risk factor record');
+      }
       
       if (riskData) {
         setRiskFactors({
@@ -128,11 +151,44 @@ const RiskScoring = () => {
         const iaCov = coverages.find(c => c.provider_type === 'InternalAudit');
         const tpCov = coverages.find(c => c.provider_type === 'ThirdParty');
         
-        if (iaCov) {
+        // Create default Internal Audit coverage if it doesn't exist
+        if (!iaCov) {
+          const { data: newIaCov, error: iaError } = await supabase
+            .from('assurance_coverage')
+            .insert({
+              auditable_area_id: id,
+              provider_type: 'InternalAudit',
+              coverage_level: 'Limited',
+            })
+            .select()
+            .single();
+          
+          if (!iaError && newIaCov) {
+            setIaCoverage('Limited');
+            setIaCoverageId(newIaCov.id);
+          }
+        } else {
           setIaCoverage(iaCov.coverage_level as CoverageLevel);
           setIaCoverageId(iaCov.id);
         }
-        if (tpCov) {
+        
+        // Create default Third Party coverage if it doesn't exist
+        if (!tpCov) {
+          const { data: newTpCov, error: tpError } = await supabase
+            .from('assurance_coverage')
+            .insert({
+              auditable_area_id: id,
+              provider_type: 'ThirdParty',
+              coverage_level: 'Limited',
+            })
+            .select()
+            .single();
+          
+          if (!tpError && newTpCov) {
+            setTpCoverage('Limited');
+            setTpCoverageId(newTpCov.id);
+          }
+        } else {
           setTpCoverage(tpCov.coverage_level as CoverageLevel);
           setTpCoverageId(tpCov.id);
         }
