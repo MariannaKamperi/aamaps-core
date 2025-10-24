@@ -167,14 +167,20 @@ const RiskScoring = () => {
   const handleRiskFactorChange = async (field: keyof RiskFactorData, value: RiskLevel) => {
     if (!id) return;
     
+    console.log('handleRiskFactorChange called:', { field, value, currentValue: riskFactors[field] });
+    
     try {
       setSaving(true);
       
       // Optimistically update the UI immediately
-      setRiskFactors(prev => ({
-        ...prev,
-        [field]: value,
-      }));
+      setRiskFactors(prev => {
+        const updated = {
+          ...prev,
+          [field]: value,
+        };
+        console.log('Updated risk factors state:', updated);
+        return updated;
+      });
       
       const updateData = {
         [field]: value,
@@ -183,6 +189,7 @@ const RiskScoring = () => {
       let riskFactorId = riskFactors.id;
 
       if (!riskFactorId) {
+        console.log('Creating new risk factor with auditable_area_id:', id);
         // Create new risk factor
         const { data, error } = await supabase
           .from('risk_factors')
@@ -202,7 +209,9 @@ const RiskScoring = () => {
 
         if (error) throw error;
         riskFactorId = data.id;
+        console.log('Created risk factor with id:', riskFactorId);
       } else {
+        console.log('Updating existing risk factor:', riskFactorId);
         // Update existing risk factor
         const { error } = await supabase
           .from('risk_factors')
@@ -210,6 +219,7 @@ const RiskScoring = () => {
           .eq('id', riskFactorId);
 
         if (error) throw error;
+        console.log('Updated successfully');
       }
 
       // Fetch updated calculated values
@@ -222,6 +232,7 @@ const RiskScoring = () => {
       if (fetchError) throw fetchError;
 
       if (updated) {
+        console.log('Fetched updated data:', updated);
         setRiskFactors({
           id: updated.id,
           financial_impact: updated.financial_impact,
