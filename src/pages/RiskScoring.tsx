@@ -444,12 +444,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Financial Impact</Label>
                 <Select
+                  key={`financial-${riskFactors.financial_impact}`}
                   value={riskFactors.financial_impact}
                   onValueChange={(value) => handleRiskFactorChange('financial_impact', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.financial_impact} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -462,12 +463,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Legal/Compliance Impact</Label>
                 <Select
+                  key={`legal-${riskFactors.legal_compliance_impact}`}
                   value={riskFactors.legal_compliance_impact}
                   onValueChange={(value) => handleRiskFactorChange('legal_compliance_impact', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.legal_compliance_impact} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -480,12 +482,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Strategic Significance</Label>
                 <Select
+                  key={`strategic-${riskFactors.strategic_significance}`}
                   value={riskFactors.strategic_significance}
                   onValueChange={(value) => handleRiskFactorChange('strategic_significance', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.strategic_significance} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -498,12 +501,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Tech/Cyber Impact</Label>
                 <Select
+                  key={`tech-${riskFactors.technological_cyber_impact}`}
                   value={riskFactors.technological_cyber_impact}
                   onValueChange={(value) => handleRiskFactorChange('technological_cyber_impact', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.technological_cyber_impact} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -516,12 +520,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>New Process/System</Label>
                 <Select
+                  key={`new-process-${riskFactors.new_process_system}`}
                   value={riskFactors.new_process_system}
                   onValueChange={(value) => handleRiskFactorChange('new_process_system', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.new_process_system} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -534,12 +539,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Stakeholder Impact</Label>
                 <Select
+                  key={`stakeholder-${riskFactors.stakeholder_impact}`}
                   value={riskFactors.stakeholder_impact}
                   onValueChange={(value) => handleRiskFactorChange('stakeholder_impact', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.stakeholder_impact} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -552,12 +558,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>C-Level Concerns</Label>
                 <Select
+                  key={`c-level-${riskFactors.c_level_concerns}`}
                   value={riskFactors.c_level_concerns}
                   onValueChange={(value) => handleRiskFactorChange('c_level_concerns', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.c_level_concerns} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
@@ -597,12 +604,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Assurance by Internal Audit</Label>
                 <Select
+                  key={`ia-coverage-${iaCoverage}`}
                   value={iaCoverage}
                   onValueChange={(value) => handleCoverageChange('InternalAudit', value as CoverageLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={iaCoverage} />
                   </SelectTrigger>
                   <SelectContent>
                     {coverageLevels.map(level => (
@@ -615,12 +623,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>Assurance by Third Party</Label>
                 <Select
+                  key={`tp-coverage-${tpCoverage}`}
                   value={tpCoverage}
                   onValueChange={(value) => handleCoverageChange('ThirdParty', value as CoverageLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={tpCoverage} />
                   </SelectTrigger>
                   <SelectContent>
                     {coverageLevels.map(level => (
@@ -672,12 +681,13 @@ const RiskScoring = () => {
               <div className="space-y-2">
                 <Label>ERM Residual Risk (Editable)</Label>
                 <Select
+                  key={`erm-${riskFactors.erm_residual_risk}`}
                   value={riskFactors.erm_residual_risk}
                   onValueChange={(value) => handleRiskFactorChange('erm_residual_risk', value as RiskLevel)}
                   disabled={saving}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder={riskFactors.erm_residual_risk} />
                   </SelectTrigger>
                   <SelectContent>
                     {riskLevels.map(level => (
