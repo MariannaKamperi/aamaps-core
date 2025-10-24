@@ -170,6 +170,12 @@ const RiskScoring = () => {
     try {
       setSaving(true);
       
+      // Optimistically update the UI immediately
+      setRiskFactors(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+      
       const updateData = {
         [field]: value,
       };
@@ -182,7 +188,14 @@ const RiskScoring = () => {
           .from('risk_factors')
           .insert({
             auditable_area_id: id,
-            ...updateData,
+            financial_impact: field === 'financial_impact' ? value : riskFactors.financial_impact,
+            legal_compliance_impact: field === 'legal_compliance_impact' ? value : riskFactors.legal_compliance_impact,
+            strategic_significance: field === 'strategic_significance' ? value : riskFactors.strategic_significance,
+            technological_cyber_impact: field === 'technological_cyber_impact' ? value : riskFactors.technological_cyber_impact,
+            new_process_system: field === 'new_process_system' ? value : riskFactors.new_process_system,
+            stakeholder_impact: field === 'stakeholder_impact' ? value : riskFactors.stakeholder_impact,
+            c_level_concerns: field === 'c_level_concerns' ? value : riskFactors.c_level_concerns,
+            erm_residual_risk: field === 'erm_residual_risk' ? value : riskFactors.erm_residual_risk,
           })
           .select()
           .single();
@@ -199,7 +212,7 @@ const RiskScoring = () => {
         if (error) throw error;
       }
 
-      // Fetch updated values
+      // Fetch updated calculated values
       const { data: updated, error: fetchError } = await supabase
         .from('risk_factors')
         .select('*')
@@ -231,6 +244,8 @@ const RiskScoring = () => {
     } catch (error) {
       console.error('Error updating risk factor:', error);
       toast.error('Failed to update risk factor');
+      // Revert optimistic update on error
+      await fetchData();
     } finally {
       setSaving(false);
     }
@@ -241,6 +256,13 @@ const RiskScoring = () => {
     
     try {
       setSaving(true);
+      
+      // Optimistically update the UI immediately
+      if (providerType === 'InternalAudit') {
+        setIaCoverage(newLevel);
+      } else {
+        setTpCoverage(newLevel);
+      }
       
       const coverageId = providerType === 'InternalAudit' ? iaCoverageId : tpCoverageId;
       
@@ -273,14 +295,7 @@ const RiskScoring = () => {
         }
       }
       
-      // Update local state
-      if (providerType === 'InternalAudit') {
-        setIaCoverage(newLevel);
-      } else {
-        setTpCoverage(newLevel);
-      }
-      
-      // Fetch updated risk factors
+      // Fetch updated risk factors to get recalculated values
       if (riskFactors.id) {
         const { data: updated, error: fetchError } = await supabase
           .from('risk_factors')
@@ -305,6 +320,8 @@ const RiskScoring = () => {
     } catch (error) {
       console.error('Error updating coverage:', error);
       toast.error('Failed to update assurance coverage');
+      // Revert optimistic update on error
+      await fetchData();
     } finally {
       setSaving(false);
     }
