@@ -133,6 +133,8 @@ export type Database = {
             | Database["public"]["Enums"]["last_audit_result_type"]
             | null
           name: string
+          priority_level: number | null
+          proposed_audit_year: number | null
           regulation: string | null
           regulatory_requirement: boolean | null
           responsible_c_level: string | null
@@ -150,6 +152,8 @@ export type Database = {
             | Database["public"]["Enums"]["last_audit_result_type"]
             | null
           name: string
+          priority_level?: number | null
+          proposed_audit_year?: number | null
           regulation?: string | null
           regulatory_requirement?: boolean | null
           responsible_c_level?: string | null
@@ -167,6 +171,8 @@ export type Database = {
             | Database["public"]["Enums"]["last_audit_result_type"]
             | null
           name?: string
+          priority_level?: number | null
+          proposed_audit_year?: number | null
           regulation?: string | null
           regulatory_requirement?: boolean | null
           responsible_c_level?: string | null
@@ -428,6 +434,14 @@ export type Database = {
         Args: { risk_factor_id: string }
         Returns: number
       }
+      calculate_priority_level: {
+        Args: { p_auditable_area_id: string }
+        Returns: number
+      }
+      calculate_proposed_audit_year: {
+        Args: { p_priority_level: number }
+        Returns: number
+      }
       calculate_residual_risks: {
         Args: { risk_factor_id: string }
         Returns: {
@@ -458,6 +472,10 @@ export type Database = {
       risk_level_to_score: {
         Args: { level: Database["public"]["Enums"]["risk_level"] }
         Returns: number
+      }
+      update_audit_priority: {
+        Args: { p_auditable_area_id: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -97,6 +97,8 @@ Deno.serve(async (req) => {
           business_unit: 'Online',
           category: 'Operational',
           regulatory_requirement: false,
+          last_audit_date: '2023-06-15',
+          last_audit_result: 'Medium findings',
           comments: 'Test area for logic validation.',
           entity_id: entity.id
         })
@@ -159,6 +161,18 @@ Deno.serve(async (req) => {
       throw coverageError;
     }
     console.log('Inserted assurance coverage records');
+
+    // 6. Trigger priority calculation
+    const { error: priorityError } = await supabase.rpc('update_audit_priority', {
+      p_auditable_area_id: auditableAreaId
+    });
+
+    if (priorityError) {
+      console.error('Error calculating priority:', priorityError);
+      // Don't throw - this is not critical for test data creation
+    } else {
+      console.log('Calculated audit priority for area');
+    }
 
     return new Response(
       JSON.stringify({ 
