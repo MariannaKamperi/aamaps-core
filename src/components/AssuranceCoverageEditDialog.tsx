@@ -5,7 +5,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CoverageLevel } from '@/utils/riskCalculations';
+import { 
+  CoverageLevel,
+  getCoverageScore, 
+  calculateResidualRisk, 
+  calculateCombinedResidualRisk,
+  getRiskLevelFromScore,
+  getRiskLevelScore
+} from '@/utils/riskCalculations';
 
 interface AssuranceCoverageEditDialogProps {
   open: boolean;
@@ -36,7 +43,6 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
 
   const fetchData = async () => {
     try {
-      // Fetch coverage data
       const { data: coverage, error: cError } = await supabase
         .from('assurance_coverage')
         .select('*')
@@ -61,7 +67,6 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
     const newFormData = { ...formData, [field]: value };
     setFormData(newFormData);
 
-    // Automatically recalculate when coverage_level or provider_type changes
     if (field === 'coverage_level' || field === 'provider_type') {
       await recalculateAndUpdate(newFormData);
     }
@@ -71,8 +76,11 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
     try {
       setLoading(true);
 
-      // Update database - triggers will handle assurance score calculations automatically
-      const { error } = await supabase
+      // 1️⃣ Convert coverage to haircut ratio
+      const haircutRatio = getCoverageScore(data.coverage_level);
+
+      // 2️⃣ Update assurance coverage table
+      const { error: coverageError } = await supabase
         .from('assurance_coverage')
         .update({
           coverage_level: data.coverage_level,
@@ -80,9 +88,43 @@ export const AssuranceCoverageEditDialog = ({ open, onOpenChange, coverageId, on
         })
         .eq('id', coverageId);
 
-      if (error) throw error;
+      if (coverageError) throw coverageError;
 
-      toast.success('✅ Assurance and residual risks recalculated successfully.');
+      // 3️⃣ Get related risk factor for this auditable area
+      const { data: riskFactor, error: rfError } = await supabase
+        .from('risk_factors')
+        .select('id, inherent_risk_score, erm_residual_risk')
+        .eq('auditable_area_id', data.auditable_area_id)
+        .single();
+
+      if (rfError) {
+        console.log('No risk factor found for this auditable area');
+        toast.success('✅ Assurance coverage updated.');
+        return;
+      }
+
+      if (riskFactor) {
+        // 4️⃣ Recalculate residual risks
+        const inherentRisk = riskFactor.inherent_risk_score || 0;
+        const iaResidual = calculateResidualRisk(inherentRisk, haircutRatio);
+        const ermResidualScore = getRiskLevelScore(riskFactor.erm_residual_risk || 'Medium');
+        const combinedResidual = calculateCombinedResidualRisk(iaResidual, ermResidualScore);
+        const combinedLevel = getRiskLevelFromScore(combinedResidual);
+        const iaResidualLevel = getRiskLevelFromScore(iaResidual);
+
+        await supabase
+          .from('risk_factors')
+          .update({
+            assurance_haircut: haircutRatio,
+            internal_audit_residual_risk: iaResidualLevel,
+            combined_residual_risk: combinedResidual,
+            combined_residual_risk_level: combinedLevel,
+          })
+          .eq('id', riskFactor.id);
+      }
+
+      toast.success('✅ Assurance & residual risk recalculated.');
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error('Error updating coverage:', error);
       toast.error('Failed to update assurance coverage');

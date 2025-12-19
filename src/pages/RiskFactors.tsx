@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Edit, Sprout } from 'lucide-react';
+import { AlertTriangle, Edit, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { RiskFactorEditDialog } from '@/components/RiskFactorEditDialog';
 
@@ -105,9 +105,14 @@ const RiskFactors = () => {
               View and manage risk factors across auditable areas
             </p>
           </div>
-          <Button onClick={handleSeedTestData} variant="outline">
-            🌱 Seed Test Data
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={fetchRiskFactors} variant="outline" size="icon">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button onClick={handleSeedTestData} variant="outline">
+              🌱 Seed Test Data
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -187,7 +192,10 @@ const RiskFactors = () => {
           open={!!editingId}
           onOpenChange={(open) => !open && setEditingId(null)}
           riskFactorId={editingId}
-          onSuccess={fetchRiskFactors}
+          onSuccess={() => {
+            fetchRiskFactors();
+            toast.success('✅ Risk factors refreshed');
+          }}
         />
       )}
     </Layout>
